@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_navigation/widgets/big_app_text.dart';
 
 class PopularMountains extends StatefulWidget {
-  const PopularMountains({Key? key}) : super(key: key);
-
+  const PopularMountains({Key? key, required this.appBarTabController})
+      : super(key: key);
+  final TabController appBarTabController;
   @override
   State<PopularMountains> createState() => _PopularMountainsState();
 }
@@ -15,6 +16,28 @@ class _PopularMountainsState extends State<PopularMountains>
     "mountain8.jpeg",
     "mountain9.jpeg",
   ];
+
+  final ScrollController listcontroller = ScrollController();
+
+  @override
+  void initState() {
+    bool slide = false;
+    listcontroller.addListener(() {
+      if (listcontroller.position.outOfRange) {
+        if (slide == false && (listcontroller.position.pixels < -30.0)) {
+          widget.appBarTabController.index -= 1;
+          slide = true;
+          return;
+        } else if (slide == false && (listcontroller.position.pixels > 270.0)) {
+          widget.appBarTabController.index += 1;
+          slide = true;
+          return;
+        }
+      }
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     TabController _tabController = TabController(length: 3, vsync: this);
@@ -52,13 +75,13 @@ class _PopularMountainsState extends State<PopularMountains>
               ),
             ),
             Container(
-              margin: const EdgeInsets.only(left: 20),
               width: double.maxFinite,
               height: 300,
               child: TabBarView(
                 controller: _tabController,
                 children: [
                   ListView.builder(
+                      controller: listcontroller,
                       itemCount: 3,
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (_, index) {
